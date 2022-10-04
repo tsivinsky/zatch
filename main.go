@@ -2,15 +2,20 @@ package main
 
 import (
 	"log"
+	"time"
+	"url-shortener/pkg/db"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/teris-io/shortid"
 )
 
 type Url struct {
-	Id      int    `json:"id"`
-	ShortId string `json:"short_id"`
-	LongUrl string `json:"long_url"`
+	Id        uint   `json:"id" gorm:"primaryKey"`
+	ShortId   string `json:"short_id" gorm:"short_id"`
+	Url       string `json:"long_url" gorm:"url"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
 }
 
 type UrlBody struct {
@@ -18,12 +23,25 @@ type UrlBody struct {
 	Name string `json:"name"`
 }
 
-var urls []Url = []Url{}
-
 func main() {
+	godotenv.Load()
+
+	err := db.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = db.Db.AutoMigrate(&Url{})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	app := fiber.New()
 
 	app.Get("/api/urls", func(c *fiber.Ctx) error {
+		var urls []Url
+		db.Db.Find(&urls)
+
 		return c.JSON(fiber.Map{
 			"ok":   true,
 			"data": urls,
@@ -39,9 +57,12 @@ func main() {
 			})
 		}
 
+		var urls []Url
+		db.Db.Find(&urls)
+
 		for _, url := range urls {
 			if url.ShortId == shortId {
-				return c.Redirect(url.LongUrl)
+				return c.Redirect(url.Url)
 			}
 		}
 
@@ -69,6 +90,9 @@ func main() {
 			})
 		}
 
+		var urls []Url
+		db.Db.Find(&urls)
+
 		if urlBody.Name != "" {
 			for _, url := range urls {
 				if url.ShortId == urlBody.Name {
@@ -83,12 +107,10 @@ func main() {
 		}
 
 		newUrl := Url{
-			Id:      len(urls),
 			ShortId: urlId,
-			LongUrl: urlBody.Url,
+			Url:     urlBody.Url,
 		}
-
-		urls = append(urls, newUrl)
+		db.Db.Create(&newUrl)
 
 		return c.JSON(newUrl)
 	})
