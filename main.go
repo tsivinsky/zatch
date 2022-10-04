@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"strings"
 	"url-shortener/pkg/db"
 	"url-shortener/pkg/middleware"
 	"url-shortener/pkg/router"
@@ -28,5 +30,20 @@ func main() {
 
 	app.Get("/:shortId", middleware.ShouldHaveShortIdParam, router.FindUrlAndRedirect)
 
-	log.Fatal(app.Listen(":5000"))
+	port := getPort(":5000")
+	log.Fatal(app.Listen(port))
+}
+
+func getPort(fallbackPort string) string {
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = fallbackPort
+	}
+
+	if !strings.HasPrefix(port, ":") {
+		port = ":" + port
+	}
+
+	return port
 }
