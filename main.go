@@ -59,7 +59,13 @@ func main() {
 		}
 
 		var url Url
-		db.Db.Where("short_id", shortId).Find(&url)
+		err := db.Db.First(&url, "short_id", shortId).Error
+		if err != nil {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"ok":      false,
+				"message": "url not found",
+			})
+		}
 
 		return c.Status(fiber.StatusOK).JSON(fiber.Map{
 			"ok":   true,
@@ -84,8 +90,8 @@ func main() {
 		}
 
 		var url Url
-		tx := db.Db.Where("id", id).Delete(&url)
-		if tx.Error != nil {
+		err = db.Db.Delete(&url, "id", id).Error
+		if err != nil {
 			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 				"ok":      false,
 				"message": "error deleting url",
@@ -103,14 +109,14 @@ func main() {
 		if shortId == "" {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"ok":      false,
-				"message": "url not found",
+				"message": "shortId parameter required",
 			})
 		}
 
 		var url Url
 		err := db.Db.First(&url, "short_id", shortId).Error
 		if err != nil {
-			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
 				"ok":      false,
 				"message": "url not found",
 			})
