@@ -14,6 +14,7 @@ type Url struct {
 	Id        uint   `json:"id" gorm:"primaryKey"`
 	ShortId   string `json:"short_id" gorm:"short_id"`
 	Url       string `json:"long_url" gorm:"url"`
+	Clicks    uint   `json:"clicks" gorm:"clicks,default:0"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -106,19 +107,21 @@ func main() {
 			})
 		}
 
-		var urls []Url
-		db.Db.Find(&urls)
-
-		for _, url := range urls {
-			if url.ShortId == shortId {
-				return c.Redirect(url.Url)
-			}
+		var url Url
+		err := db.Db.First(&url, "short_id", shortId).Error
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"ok":      false,
+				"message": "url not found",
+			})
 		}
 
-		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
-			"ok":      false,
-			"message": "url not found",
-		})
+		go func() {
+			url.Clicks = url.Clicks + 1
+			db.Db.Save(&url)
+		}()
+
+		return c.Redirect(url.Url)
 	})
 
 	app.Post("/api/shorten", func(c *fiber.Ctx) error {
