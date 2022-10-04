@@ -48,6 +48,24 @@ func main() {
 		})
 	})
 
+	app.Get("/api/:shortId", func(c *fiber.Ctx) error {
+		shortId := c.Params("shortId")
+		if shortId == "" {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"ok":      false,
+				"message": "shortId required after /api/",
+			})
+		}
+
+		var url Url
+		db.Db.Where("short_id", shortId).Find(&url)
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"ok":   true,
+			"data": url,
+		})
+	})
+
 	app.Get("/:shortId", func(c *fiber.Ctx) error {
 		shortId := c.Params("shortId")
 		if shortId == "" {
