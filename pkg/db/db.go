@@ -23,5 +23,7 @@ func Connect() error {
 
 	Db, err = gorm.Open(postgres.Open(dbUri))
 
+	err = Db.AutoMigrate(&Url{})
+
 	return err
 }

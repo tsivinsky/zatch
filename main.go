@@ -18,11 +18,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = db.Db.AutoMigrate(&db.Url{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	app := fiber.New()
 
 	app.Get("/api/urls", router.GetAllUrls)
