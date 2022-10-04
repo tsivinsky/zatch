@@ -9,3 +9,14 @@ services:
       - .env
     ports:
       - 5432:5432
+
+  app:
+    restart: unless-stopped
+    ports:
+      - 5000:5000
+    container_name: url-shortener-app
+    build: .
+    env_file:
+      - .env.production
+    depends_on:
+      - db
