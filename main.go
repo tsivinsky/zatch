@@ -66,6 +66,37 @@ func main() {
 		})
 	})
 
+	app.Delete("/api/:id", func(c *fiber.Ctx) error {
+		id, err := c.ParamsInt("id")
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"ok":      false,
+				"message": "error parsing id",
+			})
+		}
+
+		if id == 0 {
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"ok":      false,
+				"message": "id required after /api/",
+			})
+		}
+
+		var url Url
+		tx := db.Db.Where("id", id).Delete(&url)
+		if tx.Error != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"ok":      false,
+				"message": "error deleting url",
+			})
+		}
+
+		return c.Status(fiber.StatusOK).JSON(fiber.Map{
+			"ok":      true,
+			"message": "deleted successfully",
+		})
+	})
+
 	app.Get("/:shortId", func(c *fiber.Ctx) error {
 		shortId := c.Params("shortId")
 		if shortId == "" {
