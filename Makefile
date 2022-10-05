@@ -1,5 +1,5 @@
 dev:
-	docker-compose up --build -d db
+	docker-compose up --build -d db redis
 
 start:
 	docker-compose up

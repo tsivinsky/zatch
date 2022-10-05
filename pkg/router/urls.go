@@ -1,15 +1,20 @@
 package router
 
 import (
+	"fmt"
+	"time"
 	"url-shortener/pkg/db"
+	"url-shortener/pkg/tasks"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/hibiken/asynq"
 	"github.com/teris-io/shortid"
 )
 
 type UrlBody struct {
-	Url  string `json:"url"`
-	Name string `json:"name"`
+	Url        string `json:"url"`
+	Name       string `json:"name"`
+	AutoDelete uint   `json:"auto_delete"`
 }
 
 func GetAllUrls(c *fiber.Ctx) error {
@@ -130,6 +135,17 @@ func CreateNewUrl(c *fiber.Ctx) error {
 		Url:     urlBody.Url,
 	}
 	db.Db.Create(&newUrl)
+
+	if urlBody.AutoDelete > 0 {
+		task, err := tasks.NewAutoDeleteUrlTask(newUrl.Id)
+		if err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		}
+		_, err = tasks.Asynq.Enqueue(task, asynq.ProcessIn(time.Duration(urlBody.AutoDelete*uint(time.Minute))))
+		if err != nil {
+			fmt.Printf("Error: %s\n", err.Error())
+		}
+	}
 
 	return c.JSON(newUrl)
 }

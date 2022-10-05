@@ -7,6 +7,7 @@ import (
 	"url-shortener/pkg/db"
 	"url-shortener/pkg/middleware"
 	"url-shortener/pkg/router"
+	"url-shortener/pkg/tasks"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
@@ -19,6 +20,19 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	err = tasks.Connect()
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer tasks.Asynq.Close()
+
+	go func() {
+		err = tasks.CreateServer()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	app := fiber.New()
 
