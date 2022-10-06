@@ -65,4 +65,14 @@ Creates new url
 
 `auto_delete` should be a number in minutes.
 
-### 
+### GET `/api/:shortId`
+
+Returns url object by its short id
+
+### DELETE `/api/:id`
+
+Deletes url by its id
+
+### GET `/:shortId`
+
+Finds url by shortId and redirects to long url
