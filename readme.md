@@ -40,3 +40,29 @@ make build
 ```bash
 make start
 ```
+
+## Routes
+
+### GET `/api/urls`
+
+Returns all urls from database
+
+### POST `/api/shorten`
+
+Creates new url
+
+#### Example body
+
+```json
+{
+  "url": "https://github.com",
+  "name": "gh",
+  "auto_delete": 30
+}
+```
+
+`name` and `auto_delete` are optional.
+
+`auto_delete` should be a number in minutes.
+
+### 
