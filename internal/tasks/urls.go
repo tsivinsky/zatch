@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"url-shortener/pkg/db"
+	"url-shortener/internal/db"
 
 	"github.com/hibiken/asynq"
 )

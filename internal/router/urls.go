@@ -3,8 +3,8 @@ package router
 import (
 	"fmt"
 	"time"
-	"url-shortener/pkg/db"
-	"url-shortener/pkg/tasks"
+	"url-shortener/internal/db"
+	"url-shortener/internal/tasks"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/hibiken/asynq"
