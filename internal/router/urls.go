@@ -54,13 +54,6 @@ func DeleteUrlById(c *fiber.Ctx) error {
 		})
 	}
 
-	if id == 0 {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"ok":      false,
-			"message": "id required after /api/",
-		})
-	}
-
 	var url db.Url
 	err = db.Db.Delete(&url, "id", id).Error
 	if err != nil {

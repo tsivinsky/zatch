@@ -43,7 +43,7 @@ func main() {
 	app.Post("/api/shorten", router.CreateNewUrl)
 
 	app.Get("/api/:shortId", middleware.ShouldHaveUrlParam("shortId"), router.GetUrlByShortId)
-	app.Delete("/api/:id", router.DeleteUrlById)
+	app.Delete("/api/:id", middleware.ShouldHaveUrlParam("id"), router.DeleteUrlById)
 
 	app.Get("/:shortId", middleware.ShouldHaveUrlParam("shortId"), router.FindUrlAndRedirect)
 
