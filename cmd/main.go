@@ -42,10 +42,10 @@ func main() {
 	app.Get("/api/urls", router.GetAllUrls)
 	app.Post("/api/shorten", router.CreateNewUrl)
 
-	app.Get("/api/:shortId", middleware.ShouldHaveShortIdParam, router.GetUrlByShortId)
+	app.Get("/api/:shortId", middleware.ShouldHaveUrlParam("shortId"), router.GetUrlByShortId)
 	app.Delete("/api/:id", router.DeleteUrlById)
 
-	app.Get("/:shortId", middleware.ShouldHaveShortIdParam, router.FindUrlAndRedirect)
+	app.Get("/:shortId", middleware.ShouldHaveUrlParam("shortId"), router.FindUrlAndRedirect)
 
 	port := getPort(":5000")
 	log.Fatal(app.Listen(port))
