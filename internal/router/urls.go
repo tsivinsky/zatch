@@ -90,6 +90,8 @@ func FindUrlAndRedirect(c *fiber.Ctx) error {
 }
 
 func CreateNewUrl(c *fiber.Ctx) error {
+	var err error
+
 	urlBody := new(UrlBody)
 
 	if err := c.BodyParser(urlBody); err != nil {
@@ -99,13 +101,7 @@ func CreateNewUrl(c *fiber.Ctx) error {
 		})
 	}
 
-	urlId, err := shortid.Generate()
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"ok":      false,
-			"message": err.Error(),
-		})
-	}
+	urlShortId := ""
 
 	var urls []db.Url
 	db.Db.Find(&urls)
@@ -120,11 +116,19 @@ func CreateNewUrl(c *fiber.Ctx) error {
 			}
 		}
 
-		urlId = urlBody.Name
+		urlShortId = urlBody.Name
+	} else {
+		urlShortId, err = shortid.Generate()
+		if err != nil {
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"ok":      false,
+				"message": err.Error(),
+			})
+		}
 	}
 
 	newUrl := db.Url{
-		ShortId: urlId,
+		ShortId: urlShortId,
 		Url:     urlBody.Url,
 	}
 	db.Db.Create(&newUrl)
@@ -140,5 +144,5 @@ func CreateNewUrl(c *fiber.Ctx) error {
 		}
 	}
 
-	return c.JSON(newUrl)
+	return c.Status(fiber.StatusCreated).JSON(newUrl)
 }
