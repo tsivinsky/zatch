@@ -14,9 +14,12 @@ import (
 )
 
 func main() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-	err := db.Connect()
+	err = db.Connect()
 	if err != nil {
 		log.Fatal(err)
 	}
