@@ -16,8 +16,8 @@ services:
     image: redis:7
     restart: always
     container_name: url-shortener-redis
-    ports:
-      - 6379:6379
+    expose:
+      - 6379
     volumes:
       - ./redisdata:/var/lib/redis
 
