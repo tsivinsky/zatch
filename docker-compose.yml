@@ -28,6 +28,6 @@ services:
     container_name: url-shortener-app
     build: .
     env_file:
-      - .env.production
+      - .env
     depends_on:
       - db
